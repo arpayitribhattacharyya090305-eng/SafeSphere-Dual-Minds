@@ -114,10 +114,6 @@ docker compose up --build
 - Keep API keys only for Gemini, OpenWeather, and Tavily when those live
   integrations are needed.
 
-## AUTHORS 
-  Arpayitri Bhattacharyya & Chayan Maity
-
-
 ## Authors
 - Arpayitri Bhattacharyya
 - Chayan Maity
