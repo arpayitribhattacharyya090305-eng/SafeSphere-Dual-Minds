@@ -3,16 +3,14 @@ from sqlalchemy.orm import Session
 from backend.app.core.database import get_db
 from backend.app.models.database_models import Incident
 from backend.app.schemas.schemas import IncidentReport, IncidentOut
-from backend.app.api.auth import get_optional_user
-from backend.app.models.database_models import User
-from typing import List, Optional
+from typing import List
 
 router = APIRouter(prefix="/incidents", tags=["Incidents"])
 
 @router.post("/report", response_model=IncidentOut)
-def report_incident(incident_in: IncidentReport, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_optional_user)):
+def report_incident(incident_in: IncidentReport, db: Session = Depends(get_db)):
     incident = Incident(
-        reporter_id=current_user.id if current_user else None,
+        reporter_id=None,
         title=incident_in.title,
         description=incident_in.description,
         location_lat=incident_in.location_lat,

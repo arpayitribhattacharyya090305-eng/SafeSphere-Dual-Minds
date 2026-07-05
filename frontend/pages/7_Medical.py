@@ -8,10 +8,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.custom_style import inject_custom_styles
+from frontend.local_fallbacks import local_medical_guidelines
 
 BACKEND_URL = "http://localhost:8000/api"
 
-st.set_page_config(page_title="RescueAI Medical Advisor", layout="wide")
+st.set_page_config(page_title="RescueAI Medical Advisor", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Medical First Aid Advisor (RAG)</h1>", unsafe_allow_html=True)
@@ -31,7 +32,7 @@ tags = ["CPR Guidelines", "Snake Bite Care", "Burn First Aid", "Fracture Splints
 selected_tag = None
 for i, tag in enumerate(tags):
     with tag_cols[i]:
-        if st.button(tag, use_container_width=True, key=f"tag_{i}"):
+        if st.button(tag, width="stretch", key=f"tag_{i}"):
             selected_tag = tag
 
 # Override query if tag clicked
@@ -41,6 +42,7 @@ if effective_query:
     st.markdown(f"### Search results for *'{effective_query}'*")
 
     with st.spinner("Retrieving matched safety sheets from guidelines database..."):
+        is_live = False
         try:
             res = requests.post(
                 f"{BACKEND_URL}/medical/query",
@@ -49,12 +51,14 @@ if effective_query:
             )
             if res.status_code == 200:
                 results = res.json()
+                is_live = True
             else:
-                st.error(f"Backend returned HTTP {res.status_code}. Is the backend running?")
-                results = []
-        except Exception as e:
-            st.error(f"Cannot connect to backend API ({e}). Ensure the backend is running on port 8000.")
-            results = []
+                results = local_medical_guidelines(effective_query, 2)
+        except requests.RequestException:
+            results = local_medical_guidelines(effective_query, 2)
+
+        if not is_live:
+            st.info("Showing local first-aid guidelines while the backend search is unavailable.")
 
         if not results:
             st.info("No explicit guidelines found. Try searching for terms like 'cpr', 'burn', 'snake', or 'fracture'.")

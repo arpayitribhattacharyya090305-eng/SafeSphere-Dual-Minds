@@ -9,32 +9,60 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.custom_style import inject_custom_styles
-from frontend.auth_helper import AuthHelper
+from frontend.local_fallbacks import add_local_incident
+from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Vision Assessment", layout="wide")
+st.set_page_config(page_title="RescueAI Vision Assessment", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Vision Damage Assessment</h1>", unsafe_allow_html=True)
 st.markdown("Upload a photo of the emergency scene. Gemini Vision AI will analyze structural safety, flood levels, road blockages, and recommend immediate actions.")
 
-# State variables
-user_lat = 19.0760
-user_lng = 72.8777
-user_loc = "Mumbai"
-if AuthHelper.is_logged_in():
-    p = st.session_state["user_profile"]
-    user_lat = p.get("location_lat") or 19.0760
-    user_lng = p.get("location_lng") or 72.8777
-    user_loc = p.get("location_address") or "Mumbai"
+profile = get_profile()
+user_lat = profile.get("location_lat") or 19.0760
+user_lng = profile.get("location_lng") or 72.8777
+user_loc = profile.get("location_address") or "Mumbai"
 
 uploaded_file = st.file_uploader("Choose a disaster image (Flood, Fire, Building Collapse, Road Blockage)...", type=["jpg", "jpeg", "png"])
 
+
+def _local_vision_assessment(file_name: str) -> dict:
+    name = file_name.lower()
+    if "fire" in name:
+        disaster_type = "Fire"
+        road_condition = "Possible smoke or access restriction. Verify safe entry before approaching."
+    elif "collapse" in name or "building" in name:
+        disaster_type = "Collapse"
+        road_condition = "Access may be blocked by debris. Keep distance from unstable structures."
+    elif "flood" in name or "rain" in name:
+        disaster_type = "Flood"
+        road_condition = "Waterlogging or submerged road sections may be present."
+    else:
+        disaster_type = "Other"
+        road_condition = "Scene needs manual verification by responders."
+
+    return {
+        "disaster_type": disaster_type,
+        "severity": "Medium",
+        "confidence_score": 0.55,
+        "people_visible": False,
+        "risk_level": "Needs manual verification",
+        "road_condition": road_condition,
+        "structural_damage": "Offline mode cannot inspect image details. Treat the scene as potentially unsafe until verified.",
+        "immediate_actions": [
+            "Keep people away from the affected area.",
+            "Share the exact location with emergency responders.",
+            "Do not touch damaged electrical lines, unstable walls, or contaminated floodwater.",
+            "Use backend AI analysis when available for detailed visual assessment.",
+        ],
+    }
+
 if uploaded_file is not None:
     # Display the uploaded image
-    st.image(uploaded_file, caption="Uploaded Emergency Image", use_container_width=True)
+    st.image(uploaded_file, caption="Uploaded Emergency Image", width="stretch")
     
     # Analyze button
-    if st.button("Trigger Vision AI Assessment", use_container_width=True):
+    if st.button("Trigger Vision AI Assessment", width="stretch"):
         with st.spinner("Analyzing image features and running damage risk calculations..."):
             try:
                 # 1. Read bytes and convert to base64
@@ -53,96 +81,117 @@ if uploaded_file is not None:
                     "image_name": uploaded_file.name
                 }
                 
-                headers = AuthHelper.get_headers()
-                res = requests.post("http://localhost:8000/api/chat/execute", json=payload, headers=headers, timeout=20)
+                res = requests.post("http://localhost:8000/api/chat/execute", json=payload, timeout=3)
                 
                 if res.status_code == 200:
                     data = res.json()
                     va = data["vision_assessment"]
-                    
-                    if va:
-                        st.success("Vision Analysis Complete!")
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.markdown("### Assessment Scorecard")
-                            sev = va.get("severity", "Medium")
-                            sev_class = "indicator-critical" if sev == "Critical" else ("indicator-high" if sev == "High" else ("indicator-medium" if sev == "Medium" else "indicator-low"))
-                            
-                            st.markdown(
-                                f"""
-                                <div class="glass-card">
-                                    <div class="details-row">
-                                        <span class="details-label">Disaster Type</span>
-                                        <span class="details-value">{va.get('disaster_type')}</span>
-                                    </div>
-                                    <div class="details-row">
-                                        <span class="details-label">Severity Level</span>
-                                        <span class="indicator-tag {sev_class}" style="margin: 0;">{sev}</span>
-                                    </div>
-                                    <div class="details-row">
-                                        <span class="details-label">Vision Confidence</span>
-                                        <span class="details-value">{int(va.get('confidence_score', 0.9) * 100)}%</span>
-                                    </div>
-                                    <div class="details-row">
-                                        <span class="details-label">Visible People Trapped</span>
-                                        <span class="details-value">{'YES ' if va.get('people_visible') else 'None visible'}</span>
-                                    </div>
-                                    <div class="details-row">
-                                        <span class="details-label">Risk Level</span>
-                                        <span class="details-value" style="color: #fca5a5;">{va.get('risk_level')}</span>
-                                    </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                            
-                        with col2:
-                            st.markdown("### Scene Details")
-                            st.markdown(
-                                f"""
-                                <div class="glass-card">
-                                    <div style="margin-bottom: 12px;">
-                                        <span style="color: #9fb0c3; font-weight: 500; font-size: 0.85rem;">ROAD CONDITION:</span><br>
-                                        <span style="color: #f8fafc; font-weight: 600;"> {va.get('road_condition')}</span>
-                                    </div>
-                                    <div style="margin-bottom: 12px;">
-                                        <span style="color: #9fb0c3; font-weight: 500; font-size: 0.85rem;">STRUCTURAL INTEGRITY:</span><br>
-                                        <span style="color: #f8fafc; font-weight: 600;"> {va.get('structural_damage')}</span>
-                                    </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                        
-                        st.markdown("### Immediate Recommended Actions")
-                        actions_html = "<div class='glass-card' style='border-left: 5px solid #f87171;'>"
-                        for act in va.get("immediate_actions", []):
-                            actions_html += f"<p style='margin: 8px 0; color: #cbd7e3; font-weight: 500;'> {act}</p>"
-                        actions_html += "</div>"
-                        st.markdown(actions_html, unsafe_allow_html=True)
-                        
-                        # Save Incident option
-                        st.markdown("### File Incident from Image")
-                        if st.button("Log as Active Incident in Database"):
-                            report_payload = {
-                                "title": f"AI Verified {va['disaster_type']} - Proximity: {user_loc}",
-                                "description": f"Vision AI detected {va['disaster_type']} with {va['severity']} severity. structural condition: {va['structural_damage']}. road status: {va['road_condition']}.",
-                                "location_lat": user_lat,
-                                "location_lng": user_lng,
-                                "address": user_loc,
-                                "disaster_type": va["disaster_type"],
-                                "severity": va["severity"],
-                                "assessment_details": va
-                            }
-                            res_report = requests.post("http://localhost:8000/api/incidents/report", json=report_payload, headers=headers, timeout=5)
-                            if res_report.status_code == 200:
-                                st.success("Incident registered in main feed! Responders have been notified.")
-                            else:
-                                st.error("Failed to register incident in database.")
-                    else:
-                        st.error("No assessment generated by the AI node.")
+                    is_live = True
                 else:
-                    st.error("Error communicating with AI engine backend.")
-            except Exception as e:
-                st.error(f"Failed to run vision evaluation: {e}")
+                    va = _local_vision_assessment(uploaded_file.name)
+                    is_live = False
+            except requests.RequestException:
+                va = _local_vision_assessment(uploaded_file.name)
+                is_live = False
+
+            if va:
+                st.session_state["last_vision_assessment"] = va
+                st.session_state["last_vision_is_live"] = is_live
+                st.session_state["last_vision_location"] = user_loc
+                st.session_state["last_vision_lat"] = user_lat
+                st.session_state["last_vision_lng"] = user_lng
+            else:
+                st.warning("No assessment could be generated for this image.")
+
+    va = st.session_state.get("last_vision_assessment")
+    is_live = st.session_state.get("last_vision_is_live", False)
+    if va:
+        if is_live:
+            st.success("Vision Analysis Complete!")
+        else:
+            st.info("Backend vision analysis is unavailable, so a local safety assessment is shown.")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### Assessment Scorecard")
+            sev = va.get("severity", "Medium")
+            sev_class = "indicator-critical" if sev == "Critical" else ("indicator-high" if sev == "High" else ("indicator-medium" if sev == "Medium" else "indicator-low"))
+
+            st.markdown(
+                f"""
+                <div class="glass-card">
+                    <div class="details-row">
+                        <span class="details-label">Disaster Type</span>
+                        <span class="details-value">{va.get('disaster_type')}</span>
+                    </div>
+                    <div class="details-row">
+                        <span class="details-label">Severity Level</span>
+                        <span class="indicator-tag {sev_class}" style="margin: 0;">{sev}</span>
+                    </div>
+                    <div class="details-row">
+                        <span class="details-label">Vision Confidence</span>
+                        <span class="details-value">{int(va.get('confidence_score', 0.9) * 100)}%</span>
+                    </div>
+                    <div class="details-row">
+                        <span class="details-label">Visible People Trapped</span>
+                        <span class="details-value">{'YES ' if va.get('people_visible') else 'None visible'}</span>
+                    </div>
+                    <div class="details-row">
+                        <span class="details-label">Risk Level</span>
+                        <span class="details-value" style="color: #fca5a5;">{va.get('risk_level')}</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with col2:
+            st.markdown("### Scene Details")
+            st.markdown(
+                f"""
+                <div class="glass-card">
+                    <div style="margin-bottom: 12px;">
+                        <span style="color: #9fb0c3; font-weight: 500; font-size: 0.85rem;">ROAD CONDITION:</span><br>
+                        <span style="color: #f8fafc; font-weight: 600;"> {va.get('road_condition')}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <span style="color: #9fb0c3; font-weight: 500; font-size: 0.85rem;">STRUCTURAL INTEGRITY:</span><br>
+                        <span style="color: #f8fafc; font-weight: 600;"> {va.get('structural_damage')}</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("### Immediate Recommended Actions")
+        actions_html = "<div class='glass-card' style='border-left: 5px solid #f87171;'>"
+        for act in va.get("immediate_actions", []):
+            actions_html += f"<p style='margin: 8px 0; color: #cbd7e3; font-weight: 500;'> {act}</p>"
+        actions_html += "</div>"
+        st.markdown(actions_html, unsafe_allow_html=True)
+
+        st.markdown("### File Incident from Image")
+        if st.button("Log as Active Incident"):
+            report_payload = {
+                "title": f"Image Reported {va['disaster_type']} - Proximity: {st.session_state.get('last_vision_location', user_loc)}",
+                "description": f"Image assessment detected {va['disaster_type']} with {va['severity']} severity. structural condition: {va['structural_damage']}. road status: {va['road_condition']}.",
+                "location_lat": st.session_state.get("last_vision_lat", user_lat),
+                "location_lng": st.session_state.get("last_vision_lng", user_lng),
+                "address": st.session_state.get("last_vision_location", user_loc),
+                "disaster_type": va["disaster_type"],
+                "severity": va["severity"],
+                "assessment_details": va
+            }
+            try:
+                res_report = requests.post("http://localhost:8000/api/incidents/report", json=report_payload, timeout=2)
+                if res_report.status_code == 200:
+                    st.success("Incident registered in main feed.")
+                elif add_local_incident(report_payload):
+                    st.success("Incident saved locally.")
+                else:
+                    st.warning("Incident could not be saved locally.")
+            except requests.RequestException:
+                if add_local_incident(report_payload):
+                    st.success("Backend is offline, so the incident was saved locally.")
+                else:
+                    st.warning("Backend is offline and the local incident could not be saved.")

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.database import SessionLocal
 from backend.app.models.database_models import GovernmentScheme, Hospital, Resource, Shelter, Volunteer
-from backend.app.services.maps_service import NearbySearchService, RoutingService
+from backend.app.services.maps_service import RoutingService
 from backend.app.services.rag_service import RAGService
 from backend.app.services.search_service import SearchService
 from backend.app.services.weather_service import WeatherService
@@ -40,11 +40,7 @@ def calculate_evacuation_route(origin_lat: float, origin_lng: float, dest_lat: f
 
 
 def get_closest_shelters(lat: float, lng: float, limit: int = 3) -> list:
-    """Return nearby shelters from Overpass, falling back to seeded local data."""
-    overpass_results = NearbySearchService().search_shelters(lat, lng, limit=limit)
-    if overpass_results:
-        return overpass_results
-
+    """Return nearby shelters from the seeded local emergency database."""
     db: Session = SessionLocal()
     try:
         shelters = db.query(Shelter).all()
@@ -76,11 +72,7 @@ def get_closest_shelters(lat: float, lng: float, limit: int = 3) -> list:
 
 
 def get_closest_hospitals(lat: float, lng: float, limit: int = 3) -> list:
-    """Return nearby hospitals from Overpass, falling back to seeded local data."""
-    overpass_results = NearbySearchService().search_hospitals(lat, lng, limit=limit)
-    if overpass_results:
-        return overpass_results
-
+    """Return nearby hospitals from the seeded local emergency database."""
     db: Session = SessionLocal()
     try:
         hospitals = db.query(Hospital).all()
@@ -109,11 +101,7 @@ def get_closest_hospitals(lat: float, lng: float, limit: int = 3) -> list:
 
 
 def get_closest_resources(lat: float, lng: float, category: Optional[str] = None, limit: int = 5) -> list:
-    """Return nearby resources from Overpass, falling back to seeded local data."""
-    overpass_results = NearbySearchService().search_resources(lat, lng, category, limit=limit)
-    if overpass_results:
-        return overpass_results
-
+    """Return nearby resources from the seeded local emergency database."""
     db: Session = SessionLocal()
     try:
         query = db.query(Resource)
@@ -207,6 +195,10 @@ def match_nearby_volunteers(
                         "skill_set": volunteer.skill_set,
                         "phone": volunteer.phone,
                         "email": volunteer.email,
+                        "status": volunteer.status,
+                        "location_lat": volunteer.location_lat,
+                        "location_lng": volunteer.location_lng,
+                        "address": volunteer.address,
                         "distance_km": dist,
                         "match_score": skill_match_count,
                     }

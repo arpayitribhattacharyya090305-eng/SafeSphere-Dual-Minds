@@ -9,13 +9,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from frontend.auth_helper import AuthHelper
 from frontend.custom_style import inject_custom_styles
+from frontend.profile_state import get_profile
 
 BACKEND_URL = "http://localhost:8000/api"
 
 
-def _safe_get(path: str, default=None, timeout: int = 3):
+def _safe_get(path: str, default=None, timeout: float = 0.8):
     """Fetch JSON from backend and return a safe default on error."""
     try:
         response = requests.get(f"{BACKEND_URL}{path}", timeout=timeout)
@@ -63,63 +63,19 @@ st.set_page_config(
 
 inject_custom_styles()
 
-if "auth_token" not in st.session_state:
-    st.session_state["auth_token"] = None
-if "user_profile" not in st.session_state:
-    st.session_state["user_profile"] = None
-
-AuthHelper.fetch_profile()
-profile = st.session_state.get("user_profile")
+profile = get_profile()
 
 st.sidebar.markdown(
     "<h2 style='text-align: center; color: #6366f1;'>RescueAI Portal</h2>",
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
-
-if AuthHelper.is_logged_in():
-    user = st.session_state["user_profile"]
-    st.sidebar.markdown(f"### Welcome, **{user['full_name']}**")
-    st.sidebar.markdown(f"**Role:** `{user['role'].upper()}`")
-    st.sidebar.markdown(f"**Location:** {user['location_address'] or 'Not set'}")
-
-    if st.sidebar.button("Log Out", key="logout_btn"):
-        AuthHelper.logout()
-        st.rerun()
-else:
-    st.sidebar.markdown("### Responder / Citizen Login")
-    login_tab, signup_tab = st.sidebar.tabs(["Login", "Sign Up"])
-
-    with login_tab:
-        login_email = st.text_input("Email", key="login_email")
-        login_pwd = st.text_input("Password", type="password", key="login_pwd")
-        if st.button("Log In", use_container_width=True, key="login_submit"):
-            if AuthHelper.login(login_email, login_pwd):
-                st.success("Logged in successfully.")
-                st.rerun()
-
-    with signup_tab:
-        su_name = st.text_input("Full Name", key="su_name")
-        su_email = st.text_input("Email", key="su_email")
-        su_pwd = st.text_input("Password", type="password", key="su_pwd")
-        su_addr = st.text_input("Address / City", key="su_addr")
-        su_role = st.selectbox(
-            "I am registering as a:",
-            ["citizen", "responder", "volunteer"],
-            key="su_role",
-        )
-
-        if st.button("Create Account", use_container_width=True, key="signup_submit"):
-            signup_data = {
-                "email": su_email,
-                "password": su_pwd,
-                "full_name": su_name,
-                "location_address": su_addr,
-                "role": su_role,
-                "preferred_language": "English",
-            }
-            if AuthHelper.signup(signup_data):
-                st.info("Registration successful. You can now log in.")
+st.sidebar.markdown("### Operating Area")
+st.sidebar.markdown(f"**Location:** {profile.get('location_address') or 'Mumbai'}")
+st.sidebar.markdown(
+    f"**Coordinates:** {profile.get('location_lat', 19.0760):.4f}, "
+    f"{profile.get('location_lng', 72.8777):.4f}"
+)
 
 st.markdown("<h1 class='gradient-header'>RescueAI</h1>", unsafe_allow_html=True)
 st.markdown("### Intelligent Multi-Agent Disaster Response and Recovery Platform")

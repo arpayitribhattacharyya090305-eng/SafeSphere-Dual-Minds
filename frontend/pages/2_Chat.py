@@ -1,4 +1,4 @@
-import base64
+﻿import base64
 import io
 import sys
 from pathlib import Path
@@ -10,10 +10,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from frontend.auth_helper import AuthHelper
 from frontend.custom_style import inject_custom_styles
+from frontend.local_fallbacks import local_chat_response
+from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Chat - Multi-Agent Desk", layout="wide")
+st.set_page_config(page_title="RescueAI Chat - Multi-Agent Desk", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Multi-Agent Disaster Desk</h1>", unsafe_allow_html=True)
@@ -27,15 +28,10 @@ if "chat_history" not in st.session_state:
 if "last_logs" not in st.session_state:
     st.session_state["last_logs"] = []
 
-user_lat = 19.0760
-user_lng = 72.8777
-user_loc = "Mumbai"
-
-if AuthHelper.is_logged_in():
-    profile = st.session_state["user_profile"]
-    user_lat = profile.get("location_lat") or 19.0760
-    user_lng = profile.get("location_lng") or 72.8777
-    user_loc = profile.get("location_address") or "Mumbai"
+profile = get_profile()
+user_lat = profile.get("location_lat") or 19.0760
+user_lng = profile.get("location_lng") or 72.8777
+user_loc = profile.get("location_address") or "Mumbai"
 
 
 def play_tts(text: str) -> None:
@@ -154,7 +150,7 @@ with chat_col:
             "Enter your request / emergency alert:",
             placeholder="Example: Help, my area is flooding. I need the nearest shelter route and asthma care.",
         )
-        submit_btn = st.form_submit_button("Send Action Request", use_container_width=True)
+        submit_btn = st.form_submit_button("Send Action Request", width="stretch")
 
     if submit_btn and user_query:
         st.session_state["chat_history"].append({"role": "user", "content": user_query})
@@ -171,7 +167,6 @@ with chat_col:
                 response = requests.post(
                     "http://localhost:8000/api/chat/execute",
                     json=payload,
-                    headers=AuthHelper.get_headers(),
                     timeout=15,
                 )
                 if response.status_code == 200:
@@ -187,9 +182,21 @@ with chat_col:
                     st.session_state["last_logs"] = data.get("agent_logs", [])
                     st.rerun()
                 else:
-                    st.error("Error executing the agent flow on the backend.")
-            except Exception as exc:
-                st.error(f"Failed to reach the FastAPI backend: {exc}")
+                    data = local_chat_response(user_query, user_loc)
+                    st.session_state["chat_history"].append(
+                        {"role": "assistant", "content": data["final_response"]}
+                    )
+                    st.session_state["last_logs"] = data.get("agent_logs", [])
+                    st.info("Backend is unavailable, so a local emergency response was generated.")
+                    st.rerun()
+            except requests.RequestException:
+                data = local_chat_response(user_query, user_loc)
+                st.session_state["chat_history"].append(
+                    {"role": "assistant", "content": data["final_response"]}
+                )
+                st.session_state["last_logs"] = data.get("agent_logs", [])
+                st.info("Backend is unavailable, so a local emergency response was generated.")
+                st.rerun()
 
     if st.session_state["chat_history"] and st.session_state["chat_history"][-1]["role"] == "assistant":
         if st.button("Read Latest Response Aloud", key="play_tts_btn"):

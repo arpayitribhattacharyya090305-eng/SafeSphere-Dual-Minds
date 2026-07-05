@@ -8,10 +8,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.custom_style import inject_custom_styles
+from frontend.local_fallbacks import local_government_schemes
 
 BACKEND_URL = "http://localhost:8000/api"
 
-st.set_page_config(page_title="RescueAI Relief Schemes", layout="wide")
+st.set_page_config(page_title="RescueAI Relief Schemes", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Government Relief & Compensation Schemes</h1>", unsafe_allow_html=True)
@@ -20,20 +21,23 @@ st.markdown("Access NDMA relief, ex-gratia compensations, and housing subsidies 
 st.sidebar.markdown("### Filter Category")
 category = st.sidebar.selectbox("Select Category", ["All", "Compensation", "Medical Aid", "Housing", "Relief Fund"])
 
-# Fetch schemes via REST API (decoupled from DB)
+schemes = []
+is_live = False
 try:
     params = {}
     if category != "All":
         params["category"] = category
-    res = requests.get(f"{BACKEND_URL}/government/schemes", params=params, timeout=5)
+    res = requests.get(f"{BACKEND_URL}/government/schemes", params=params, timeout=1)
     if res.status_code == 200:
         schemes = res.json()
+        is_live = True
     else:
-        st.error(f"Failed to load relief schemes from backend (HTTP {res.status_code}).")
-        schemes = []
-except Exception as e:
-    st.error(f"Cannot connect to backend API ({e}). Ensure the backend is running.")
-    schemes = []
+        schemes = local_government_schemes(category)
+except requests.RequestException:
+    schemes = local_government_schemes(category)
+
+if not is_live:
+    st.info("Showing local relief scheme records while the backend API is unavailable.")
 
 if not schemes:
     st.info("No active government schemes found matching this category.")

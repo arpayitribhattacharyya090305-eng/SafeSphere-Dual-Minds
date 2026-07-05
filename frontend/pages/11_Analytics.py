@@ -13,8 +13,15 @@ from backend.app.core.database import SessionLocal
 from backend.app.models.database_models import Shelter, Incident, Volunteer, WeatherAlert
 from frontend.custom_style import inject_custom_styles
 
-st.set_page_config(page_title="RescueAI Analytics", layout="wide")
+st.set_page_config(page_title="RescueAI Analytics", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+
+CHART_LAYOUT = {
+    "paper_bgcolor": "#ffffff",
+    "plot_bgcolor": "#ffffff",
+    "font": {"color": "#172033"},
+    "legend": {"font": {"color": "#172033"}},
+}
 
 st.markdown("<h1 class='gradient-header'>Operations Analytics & Metrics</h1>", unsafe_allow_html=True)
 st.markdown("Real-time telemetry on shelter bed availability, active incidents, volunteer skills, and meteorological severity metrics.")
@@ -52,9 +59,10 @@ with col1:
         fig = px.bar(
             df_beds, x="Shelter", y="Beds count", color="Status",
             barmode="stack", color_discrete_map={"Occupied": "#fca5a5", "Available": "#86efac"},
-            template="plotly_dark"
+            template="plotly_white"
         )
-        st.plotly_chart(fig, use_container_width=True)
+        fig.update_layout(**CHART_LAYOUT)
+        st.plotly_chart(fig, width="stretch")
 
 with col2:
     st.markdown("### Active Incidents by Category")
@@ -72,9 +80,10 @@ with col2:
     fig_pie = px.pie(
         df_inc, values="Count", names="Category",
         color_discrete_sequence=px.colors.qualitative.Pastel,
-        hole=0.4, template="plotly_dark"
+        hole=0.4, template="plotly_white"
     )
-    st.plotly_chart(fig_pie, use_container_width=True)
+    fig_pie.update_layout(**CHART_LAYOUT)
+    st.plotly_chart(fig_pie, width="stretch")
 
 col3, col4 = st.columns(2)
 
@@ -94,10 +103,11 @@ with col3:
     df_vol = pd.DataFrame(list(skills_map.items()), columns=["Skill", "Volunteers"])
     fig_vol = px.bar(
         df_vol, x="Volunteers", y="Skill", orientation='h',
-        color="Skill", template="plotly_dark",
+        color="Skill", template="plotly_white",
         color_discrete_sequence=px.colors.sequential.Agsunset
     )
-    st.plotly_chart(fig_vol, use_container_width=True)
+    fig_vol.update_layout(**CHART_LAYOUT)
+    st.plotly_chart(fig_vol, width="stretch")
 
 with col4:
     st.markdown("### Meteorological Alerts Severity")
@@ -112,6 +122,7 @@ with col4:
     df_alert = pd.DataFrame(list(severity_map.items()), columns=["Severity", "Count"])
     fig_alert = px.bar(
         df_alert, x="Severity", y="Count", color="Severity",
-        template="plotly_dark", color_discrete_map={"Extreme": "#f87171", "Severe": "#fbbf24", "Moderate": "#fbbf24"}
+        template="plotly_white", color_discrete_map={"Extreme": "#f87171", "Severe": "#fbbf24", "Moderate": "#fbbf24"}
     )
-    st.plotly_chart(fig_alert, use_container_width=True)
+    fig_alert.update_layout(**CHART_LAYOUT)
+    st.plotly_chart(fig_alert, width="stretch")

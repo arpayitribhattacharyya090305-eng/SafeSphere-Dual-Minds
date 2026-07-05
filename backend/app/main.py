@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.api import auth, incidents, shelters, weather, resources, volunteers, chat
+from backend.app.api import incidents, shelters, weather, resources, volunteers, chat
 from backend.app.api import government, medical
 from backend.app.services.rag_service import RAGService
 from backend.app.core.config import settings
@@ -46,7 +46,6 @@ app.add_middleware(
 )
 
 # Bind Routers
-app.include_router(auth.router, prefix="/api")
 app.include_router(incidents.router, prefix="/api")
 app.include_router(shelters.router, prefix="/api")  # Includes shelters & hospitals
 app.include_router(weather.router, prefix="/api")

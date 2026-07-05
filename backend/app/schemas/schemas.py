@@ -1,44 +1,6 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-
-# --- AUTH SCHEMAS ---
-class UserSignup(BaseModel):
-    email: EmailStr
-    password: str = Field(..., min_length=6)
-    full_name: str
-    role: str = "citizen"
-    location_address: Optional[str] = None
-    location_lat: Optional[float] = None
-    location_lng: Optional[float] = None
-    preferred_language: str = "English"
-    family_members: List[Dict[str, Any]] = []
-    medical_conditions: Optional[str] = None
-    emergency_contacts: List[Dict[str, Any]] = []
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-class UserOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    email: EmailStr
-    full_name: str
-    role: str
-    location_address: Optional[str]
-    location_lat: Optional[float]
-    location_lng: Optional[float]
-    preferred_language: str
-    family_members: List[Dict[str, Any]]
-    medical_conditions: Optional[str]
-    emergency_contacts: List[Dict[str, Any]]
-    created_at: datetime
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
 
 # --- INCIDENT SCHEMAS ---
 class IncidentReport(BaseModel):
@@ -131,13 +93,13 @@ class VolunteerOut(BaseModel):
 
     id: int
     name: str
-    skill_set: Optional[str]
+    skill_set: Optional[str] = None
     phone: str
-    email: Optional[str]
-    status: str
-    location_lat: Optional[float]
-    location_lng: Optional[float]
-    address: Optional[str]
+    email: Optional[str] = None
+    status: Optional[str] = "Available"
+    location_lat: Optional[float] = None
+    location_lng: Optional[float] = None
+    address: Optional[str] = None
     distance_km: Optional[float] = None
 
 # --- CHAT & MULTI-AGENT EXECUTION SCHEMAS ---

@@ -1,12 +1,9 @@
 import base64
-from typing import Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from backend.app.core.database import get_db
 from backend.app.agents.workflow import get_disaster_agent_graph, AgentState
 from backend.app.schemas.schemas import ChatRequest, ChatResponse
-from backend.app.api.auth import get_optional_user
-from backend.app.models.database_models import User
 
 router = APIRouter(prefix="/chat", tags=["Multi-Agent Chat Engine"])
 
@@ -14,10 +11,10 @@ router = APIRouter(prefix="/chat", tags=["Multi-Agent Chat Engine"])
 workflow_graph = get_disaster_agent_graph()
 
 @router.post("/execute", response_model=ChatResponse)
-def execute_chat_flow(request: ChatRequest, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_optional_user)):
+def execute_chat_flow(request: ChatRequest, db: Session = Depends(get_db)):
     """
     Triggers the multi-agent cooperative workflow inside LangGraph.
-    Incorporates user context from DB if logged in. Responses are English-only.
+    Uses request location details and returns English-only responses.
     """
     # 1. Decode base64 image data if sent
     image_bytes = None
@@ -30,14 +27,10 @@ def execute_chat_flow(request: ChatRequest, db: Session = Depends(get_db), curre
         except Exception as e:
             print(f"Error decoding request image base64: {e}")
 
-    # 2. Extract profile details if user is logged in
+    # 2. Use anonymous request context
     family = []
     medical = ""
     lang = "English"
-    
-    if current_user:
-        family = current_user.family_members or []
-        medical = current_user.medical_conditions or ""
 
     # 3. Form initial LangGraph state dict
     initial_state = AgentState(

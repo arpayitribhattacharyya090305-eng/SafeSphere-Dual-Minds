@@ -60,7 +60,6 @@ The frontend map helpers live in `frontend/map_utils.py`.
 
    ```env
    DATABASE_URL=sqlite:///./disaster_response.db
-   JWT_SECRET=replace-this-in-production
    GEMINI_API_KEY=
    OPENWEATHER_API_KEY=
    TAVILY_API_KEY=
@@ -111,7 +110,6 @@ docker compose up --build
 - The public Overpass, Nominatim, and OSRM endpoints are suitable for demos and
   moderate use. For high-volume production deployments, self-host Overpass,
   Nominatim, or OSRM while keeping the same service interfaces.
-- Set a strong `JWT_SECRET` in production.
 - Use PostgreSQL by changing `DATABASE_URL`.
 - Keep API keys only for Gemini, OpenWeather, and Tavily when those live
   integrations are needed.

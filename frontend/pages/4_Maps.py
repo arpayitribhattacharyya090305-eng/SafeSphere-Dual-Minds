@@ -9,7 +9,6 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.custom_style import inject_custom_styles
-from frontend.auth_helper import AuthHelper
 from frontend.map_utils import (
     add_disaster_zones,
     add_heatmap,
@@ -18,23 +17,19 @@ from frontend.map_utils import (
     add_user_location,
     create_osm_map,
 )
+from frontend.local_fallbacks import local_hospitals, local_incidents, local_shelters
+from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Live Maps", layout="wide")
+st.set_page_config(page_title="RescueAI Live Maps", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Emergency Live Maps</h1>", unsafe_allow_html=True)
 st.markdown("Visualize active hazards, safety shelters, hospitals, and OSRM evacuation routes on OpenStreetMap.")
 
-# Default Coordinates
-user_lat = 19.0760
-user_lng = 72.8777
-user_loc = "Mumbai"
-
-if AuthHelper.is_logged_in():
-    p = st.session_state["user_profile"]
-    user_lat = p.get("location_lat") or 19.0760
-    user_lng = p.get("location_lng") or 72.8777
-    user_loc = p.get("location_address") or "Mumbai"
+profile = get_profile()
+user_lat = profile.get("location_lat") or 19.0760
+user_lng = profile.get("location_lng") or 72.8777
+user_loc = profile.get("location_address") or "Mumbai"
 
 # Sidebar controls
 st.sidebar.markdown("### Map Settings")
@@ -53,17 +48,17 @@ route_info = None
 
 try:
     if show_shelters:
-        res = requests.get(f"http://localhost:8000/api/shelters/nearby?lat={user_lat}&lng={user_lng}&limit=10", timeout=5)
+        res = requests.get(f"http://localhost:8000/api/shelters/nearby?lat={user_lat}&lng={user_lng}&limit=10", timeout=1)
         if res.status_code == 200:
             shelters = res.json()
 
     if show_hospitals:
-        res = requests.get(f"http://localhost:8000/api/hospitals/nearby?lat={user_lat}&lng={user_lng}&limit=10", timeout=5)
+        res = requests.get(f"http://localhost:8000/api/hospitals/nearby?lat={user_lat}&lng={user_lng}&limit=10", timeout=1)
         if res.status_code == 200:
             hospitals = res.json()
 
     if show_incidents:
-        res = requests.get("http://localhost:8000/api/incidents/list", timeout=5)
+        res = requests.get("http://localhost:8000/api/incidents/list", timeout=1)
         if res.status_code == 200:
             incidents = res.json()
             
@@ -77,12 +72,15 @@ try:
             "user_lat": user_lat,
             "user_lng": user_lng
         }
-        res = requests.post("http://localhost:8000/api/chat/execute", json=payload, headers=AuthHelper.get_headers(), timeout=10)
+        res = requests.post("http://localhost:8000/api/chat/execute", json=payload, timeout=5)
         if res.status_code == 200:
             route_info = res.json().get("navigation_info")
 
 except Exception as e:
-    st.warning(f"Unable to read location feeds from backend API ({e})")
+    shelters = local_shelters(user_lat, user_lng, 10) if show_shelters else []
+    hospitals = local_hospitals(user_lat, user_lng, 10) if show_hospitals else []
+    incidents = local_incidents() if show_incidents else []
+    st.info("Showing local map records while the backend API is unavailable.")
 
 # Generate OpenStreetMap Folium map
 m = create_osm_map(user_lat, user_lng, zoom_start=13)
