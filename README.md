@@ -113,3 +113,7 @@ docker compose up --build
 - Use PostgreSQL by changing `DATABASE_URL`.
 - Keep API keys only for Gemini, OpenWeather, and Tavily when those live
   integrations are needed.
+
+## AUTHORS 
+  Arpayitri Bhattacharyya
+  Chayan Maity
