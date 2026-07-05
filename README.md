@@ -115,5 +115,4 @@ docker compose up --build
   integrations are needed.
 
 ## AUTHORS 
-  Arpayitri Bhattacharyya
-  Chayan Maity
+  Arpayitri Bhattacharyya & Chayan Maity
