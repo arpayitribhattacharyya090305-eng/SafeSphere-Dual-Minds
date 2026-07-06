@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import requests
 from pathlib import Path
 import sys
@@ -9,10 +9,11 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import local_resources
-from frontend.profile_state import get_profile
+from frontend.profile_state import get_profile, render_auth_sidebar
 
 st.set_page_config(page_title="SafeSphere Resources", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+render_auth_sidebar()
 
 st.markdown("<h1 class='gradient-header'>Emergency Inventory & Resource Hubs</h1>", unsafe_allow_html=True)
 st.markdown("Locate and verify stock levels of drinking water, rations, medicines, generator fuel, and battery hubs.")

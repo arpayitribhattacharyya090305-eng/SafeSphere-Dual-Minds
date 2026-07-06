@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from pathlib import Path
 
 import streamlit as st
@@ -7,11 +7,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+import requests
 from frontend.custom_style import inject_custom_styles
-from frontend.profile_state import get_profile, update_profile
+from frontend.profile_state import get_profile, update_profile, get_auth_token, render_auth_sidebar
 
 st.set_page_config(page_title="SafeSphere Settings", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+render_auth_sidebar()
 
 st.markdown("<h1 class='gradient-header'>Emergency Settings</h1>", unsafe_allow_html=True)
 st.markdown(
@@ -114,16 +116,34 @@ with st.form("settings_form"):
     save_btn = st.form_submit_button("Save Emergency Settings", width="stretch")
 
 if save_btn:
-    update_profile(
-        {
-            "full_name": full_name.strip(),
-            "email": email.strip(),
-            "medical_conditions": medical_conditions.strip(),
-            "location_address": address.strip() or "Mumbai",
-            "location_lat": lat,
-            "location_lng": lng,
-            "family_members": _parse_family_members(family_input),
-            "emergency_contacts": _parse_contacts(contacts_input),
-        }
-    )
-    st.success("Emergency settings saved for this session.")
+    profile_data = {
+        "full_name": full_name.strip(),
+        "email": email.strip(),
+        "medical_conditions": medical_conditions.strip(),
+        "location_address": address.strip() or "Mumbai",
+        "location_lat": lat,
+        "location_lng": lng,
+        "family_members": _parse_family_members(family_input),
+        "emergency_contacts": _parse_contacts(contacts_input),
+    }
+    update_profile(profile_data)
+    
+    # Persist to database if logged in
+    auth_token = get_auth_token()
+    if auth_token:
+        BACKEND_URL = "http://localhost:8000/api"
+        try:
+            r = requests.put(
+                f"{BACKEND_URL}/auth/profile",
+                json=profile_data,
+                headers={"Authorization": f"Bearer {auth_token}"},
+                timeout=5
+            )
+            if r.status_code == 200:
+                st.success("Emergency settings saved and synced to database.")
+            else:
+                st.warning("Emergency settings saved locally, but database sync failed: " + r.json().get("detail", "Error"))
+        except Exception as exc:
+            st.warning(f"Emergency settings saved locally, but database sync failed: {exc}")
+    else:
+        st.success("Emergency settings saved for this session.")

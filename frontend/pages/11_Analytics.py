@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import plotly.express as px
 import pandas as pd
 import requests
@@ -12,9 +12,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from backend.app.core.database import SessionLocal
 from backend.app.models.database_models import Shelter, Incident, Volunteer, WeatherAlert
 from frontend.custom_style import inject_custom_styles
+from frontend.profile_state import render_auth_sidebar
 
 st.set_page_config(page_title="SafeSphere Analytics", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+render_auth_sidebar()
 
 CHART_LAYOUT = {
     "paper_bgcolor": "#ffffff",

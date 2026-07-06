@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import requests
 import base64
 from pathlib import Path
@@ -10,10 +10,11 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import add_local_incident
-from frontend.profile_state import get_profile
+from frontend.profile_state import get_profile, render_auth_sidebar
 
 st.set_page_config(page_title="SafeSphere Vision Assessment", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+render_auth_sidebar()
 
 st.markdown("<h1 class='gradient-header'>Vision Damage Assessment</h1>", unsafe_allow_html=True)
 st.markdown("Upload a photo of the emergency scene. Gemini Vision AI will analyze structural safety, flood levels, road blockages, and recommend immediate actions.")

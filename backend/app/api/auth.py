@@ -27,6 +27,26 @@ class UserOut(BaseModel):
     email: EmailStr
     full_name: str
     role: str
+    location_address: str | None = None
+    location_lat: float | None = None
+    location_lng: float | None = None
+    preferred_language: str | None = None
+    family_members: list | None = None
+    medical_conditions: str | None = None
+    emergency_contacts: list | None = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class ProfileUpdateRequest(BaseModel):
+    full_name: str | None = None
+    location_address: str | None = None
+    location_lat: float | None = None
+    location_lng: float | None = None
+    medical_conditions: str | None = None
+    family_members: list | None = None
+    emergency_contacts: list | None = None
 
 @router.post("/auth/signup", response_model=UserOut)
 def signup(payload: SignupRequest, db: Session = Depends(get_db)):
@@ -42,7 +62,7 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    return UserOut(id=user.id, email=user.email, full_name=user.full_name, role=user.role)
+    return user
 
 @router.post("/auth/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
@@ -82,4 +102,26 @@ def get_current_user(authorization: str | None = Header(None), db: Session = Dep
 
 @router.get("/auth/me", response_model=UserOut)
 def me(current: User = Depends(get_current_user)):
-    return UserOut(id=current.id, email=current.email, full_name=current.full_name, role=current.role)
+    return current
+
+
+@router.put("/auth/profile", response_model=UserOut)
+def update_profile(payload: ProfileUpdateRequest, current: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if payload.full_name is not None:
+        current.full_name = payload.full_name
+    if payload.location_address is not None:
+        current.location_address = payload.location_address
+    if payload.location_lat is not None:
+        current.location_lat = payload.location_lat
+    if payload.location_lng is not None:
+        current.location_lng = payload.location_lng
+    if payload.medical_conditions is not None:
+        current.medical_conditions = payload.medical_conditions
+    if payload.family_members is not None:
+        current.family_members = payload.family_members
+    if payload.emergency_contacts is not None:
+        current.emergency_contacts = payload.emergency_contacts
+    db.commit()
+    db.refresh(current)
+    return current
+

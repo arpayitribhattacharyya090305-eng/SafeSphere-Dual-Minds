@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import requests
 from pathlib import Path
 import sys
@@ -9,11 +9,13 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import local_medical_guidelines
+from frontend.profile_state import render_auth_sidebar
 
 BACKEND_URL = "http://localhost:8000/api"
 
 st.set_page_config(page_title="SafeSphere Medical Advisor", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+render_auth_sidebar()
 
 st.markdown("<h1 class='gradient-header'>Medical First Aid Advisor (RAG)</h1>", unsafe_allow_html=True)
 st.markdown("Search critical medical and trauma guidelines sourced from WHO, Indian NDMA, and Red Cross safety manuals.")

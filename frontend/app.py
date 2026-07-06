@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.custom_style import inject_custom_styles
-from frontend.profile_state import get_profile, update_profile, set_auth_token, get_auth_token, clear_auth_token
+from frontend.profile_state import get_profile, update_profile, set_auth_token, get_auth_token, clear_auth_token, render_auth_sidebar
 
 BACKEND_URL = "http://localhost:8000/api"
 
@@ -78,54 +78,7 @@ st.sidebar.markdown(
 )
 
 # --- Authentication controls (Login / Signup / Logout) ---
-auth_token = get_auth_token()
-st.sidebar.markdown("---")
-if auth_token:
-    st.sidebar.markdown(f"**Signed in as:** {profile.get('full_name') or profile.get('email')}")
-    if st.sidebar.button("Logout"):
-        try:
-            requests.post(f"{BACKEND_URL}/auth/logout", headers={"Authorization": f"Bearer {auth_token}"}, timeout=5)
-        except Exception:
-            pass
-        clear_auth_token()
-        update_profile({})
-        st.experimental_rerun()
-else:
-    with st.sidebar.expander("Account"):
-        st.write("Log in or create an account to enable personalized features.")
-        tab = st.radio("Action", ["Login", "Sign up"], key="auth_action")
-        if tab == "Login":
-            le = st.text_input("Email", key="login_email")
-            lp = st.text_input("Password", type="password", key="login_password")
-            if st.button("Login", key="login_button"):
-                try:
-                    r = requests.post(f"{BACKEND_URL}/auth/login", json={"email": le, "password": lp}, timeout=5)
-                    if r.status_code == 200:
-                        token = r.json().get("access_token")
-                        set_auth_token(token)
-                        me = requests.get(f"{BACKEND_URL}/auth/me", headers={"Authorization": f"Bearer {token}"}, timeout=5)
-                        if me.status_code == 200:
-                            u = me.json()
-                            update_profile({"full_name": u.get("full_name"), "email": u.get("email")})
-                        st.success("Logged in")
-                        st.experimental_rerun()
-                    else:
-                        st.error(r.json().get("detail", "Login failed"))
-                except Exception as exc:
-                    st.error(f"Login request failed: {exc}")
-        else:
-            se = st.text_input("Email", key="signup_email")
-            sn = st.text_input("Full name", key="signup_name")
-            sp = st.text_input("Password", type="password", key="signup_password")
-            if st.button("Sign up", key="signup_button"):
-                try:
-                    r = requests.post(f"{BACKEND_URL}/auth/signup", json={"email": se, "password": sp, "full_name": sn}, timeout=5)
-                    if r.status_code == 200:
-                        st.success("Account created. Please login.")
-                    else:
-                        st.error(r.json().get("detail", "Sign up failed"))
-                except Exception as exc:
-                    st.error(f"Signup request failed: {exc}")
+render_auth_sidebar()
 
 st.markdown("<h1 class='gradient-header'>SafeSphere</h1>", unsafe_allow_html=True)
 st.markdown("### Intelligent Multi-Agent Disaster Response and Recovery Platform")

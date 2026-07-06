@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import requests
 from streamlit_folium import st_folium
 from pathlib import Path
@@ -18,10 +18,11 @@ from frontend.map_utils import (
     create_osm_map,
 )
 from frontend.local_fallbacks import local_hospitals, local_incidents, local_shelters
-from frontend.profile_state import get_profile
+from frontend.profile_state import get_profile, render_auth_sidebar
 
 st.set_page_config(page_title="SafeSphere Live Maps", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
+render_auth_sidebar()
 
 st.markdown("<h1 class='gradient-header'>Emergency Live Maps</h1>", unsafe_allow_html=True)
 st.markdown("Visualize active hazards, safety shelters, hospitals, and OSRM evacuation routes on OpenStreetMap.")
