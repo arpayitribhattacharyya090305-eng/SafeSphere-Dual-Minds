@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: rescueai-backend
+    container_name: safesphere-backend
     ports:
       - "8000:8000"
     environment:
@@ -17,7 +17,7 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    container_name: rescueai-frontend
+    container_name: safesphere-frontend
     ports:
       - "8501:8501"
     environment:

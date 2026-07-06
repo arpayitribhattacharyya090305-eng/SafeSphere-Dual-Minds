@@ -1,4 +1,4 @@
-# RescueAI Architecture
+# SafeSphere Architecture
 
 ## Components
 
@@ -45,7 +45,7 @@ application does not need a map provider key or billing-enabled map account.
 ## Resilience
 
 The public Overpass, Nominatim, and OSRM endpoints can be rate-limited or
-temporarily unavailable. RescueAI keeps seeded local shelter, hospital, and
+temporarily unavailable. SafeSphere keeps seeded local shelter, hospital, and
 resource data as a fallback so emergency pages and agent responses continue to
 work during external service interruptions.
 

@@ -1,6 +1,6 @@
-"""Free and open-source mapping services for RescueAI.
+"""Free and open-source mapping services for SafeSphere.
 
-This module implements RescueAI mapping with the OpenStreetMap ecosystem:
+This module implements SafeSphere mapping with the OpenStreetMap ecosystem:
 Nominatim for geocoding, Overpass API for nearby places, OSRM for routing, and
 Folium for map rendering helpers.
 """
@@ -57,7 +57,7 @@ class GeocodingService:
 
     def __init__(
         self,
-        user_agent: str = "rescueai-disaster-response/1.0",
+        user_agent: str = "safesphere-disaster-response/1.0",
         timeout: int = 10,
         retries: int = 2,
         pause_seconds: float = 1.0,
@@ -303,7 +303,7 @@ class NearbySearchService:
                 self.OVERPASS_URL,
                 data={"data": query},
                 timeout=self.timeout,
-                headers={"User-Agent": "rescueai-disaster-response/1.0"},
+                headers={"User-Agent": "safesphere-disaster-response/1.0"},
             )
             response.raise_for_status()
             elements = response.json().get("elements", [])

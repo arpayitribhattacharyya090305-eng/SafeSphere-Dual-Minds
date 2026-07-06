@@ -14,12 +14,12 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import local_chat_response
 from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Chat - Multi-Agent Desk", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Chat - Multi-Agent Desk", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Multi-Agent Disaster Desk</h1>", unsafe_allow_html=True)
 st.markdown(
-    "Coordinate with RescueAI agents for weather, shelter, navigation, medical, "
+    "Coordinate with SafeSphere agents for weather, shelter, navigation, medical, "
     "resource, communication, and relief planning."
 )
 
@@ -155,7 +155,7 @@ with chat_col:
     if submit_btn and user_query:
         st.session_state["chat_history"].append({"role": "user", "content": user_query})
 
-        with st.spinner("Invoking RescueAI agents..."):
+        with st.spinner("Invoking SafeSphere agents..."):
             try:
                 payload = {
                     "user_query": user_query,

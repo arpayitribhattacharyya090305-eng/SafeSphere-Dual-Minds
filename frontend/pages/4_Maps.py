@@ -20,7 +20,7 @@ from frontend.map_utils import (
 from frontend.local_fallbacks import local_hospitals, local_incidents, local_shelters
 from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Live Maps", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Live Maps", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Emergency Live Maps</h1>", unsafe_allow_html=True)

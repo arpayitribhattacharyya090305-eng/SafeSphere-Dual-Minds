@@ -24,6 +24,17 @@ class User(Base):
     incidents = relationship("Incident", back_populates="reporter")
     emergency_requests = relationship("EmergencyRequest", back_populates="user")
 
+
+class Session(Base):
+    __tablename__ = "sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    token = Column(String, unique=True, index=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+
 class Incident(Base):
     __tablename__ = "incidents"
 

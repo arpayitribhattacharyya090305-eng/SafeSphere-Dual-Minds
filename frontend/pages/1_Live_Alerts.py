@@ -11,7 +11,7 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import add_local_incident, local_incidents
 from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Live Alerts", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Live Alerts", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Live Incident Alerts & Reports</h1>", unsafe_allow_html=True)

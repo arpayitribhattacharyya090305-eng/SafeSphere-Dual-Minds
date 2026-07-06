@@ -13,7 +13,7 @@ from backend.app.core.database import SessionLocal
 from backend.app.models.database_models import Shelter, Incident, Volunteer, WeatherAlert
 from frontend.custom_style import inject_custom_styles
 
-st.set_page_config(page_title="RescueAI Analytics", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Analytics", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 CHART_LAYOUT = {

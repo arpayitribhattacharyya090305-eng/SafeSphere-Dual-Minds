@@ -1,4 +1,4 @@
-"""Tool functions used by RescueAI agents."""
+"""Tool functions used by SafeSphere agents."""
 
 from __future__ import annotations
 

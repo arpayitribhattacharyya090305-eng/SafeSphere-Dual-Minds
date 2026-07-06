@@ -469,7 +469,7 @@ def communication_node(state: AgentState) -> AgentState:
     sms_draft = f"SOS! I need emergency assistance at {loc}. Family: {family}. Medical: {meds}. Please dispatch rescue team."
     
     whatsapp_draft = (
-        f" *RESCUEAI EMERGENCY DISTRESS STATUS* \n"
+        f" *SAFESPHERE EMERGENCY DISTRESS STATUS* \n"
         f" *Location:* {loc} (Coords: {state['user_lat']:.4f}, {state['user_lng']:.4f})\n"
         f" *Family with me:* {family}\n"
         f" *Medical concerns:* {meds}\n"
@@ -480,7 +480,7 @@ def communication_node(state: AgentState) -> AgentState:
     email_draft = (
         f"Subject: URGENT: Disaster Distress Rescue Request - Coordinates: {state['user_lat']}, {state['user_lng']}\n\n"
         f"Dear Emergency Command Center / District Magistrate,\n\n"
-        f"This is an automated distress email generated via RescueAI.\n"
+        f"This is an automated distress email generated via SafeSphere.\n"
         f"A citizen requires urgent assistance. Details below:\n"
         f"- Reporter: Rajesh Patel\n"
         f"- Location Area: {loc}\n"
@@ -644,7 +644,7 @@ def coordinator_aggregate_node(state: AgentState) -> AgentState:
         state["final_response"] = gemini_resp
     else:
         # Build local compiled markdown template (high fidelity fallback)
-        res = "# RescueAI Emergency Action Plan\n\n"
+        res = "# SafeSphere Emergency Action Plan\n\n"
         
         # 1. Summary
         res += "## EMERGENCY SUMMARY\n"

@@ -1,4 +1,4 @@
-"""Folium helpers used by RescueAI Streamlit pages."""
+"""Folium helpers used by SafeSphere Streamlit pages."""
 
 from __future__ import annotations
 

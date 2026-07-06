@@ -19,9 +19,9 @@ def seed_database():
 
         # 1. Seed Users
         admin_user = User(
-            email="admin@rescueai.org",
+            email="admin@safesphere.org",
             password_hash=get_password_hash("admin123"),
-            full_name="RescueAI Command Center Admin",
+            full_name="SafeSphere Command Center Admin",
             role="admin",
             location_address="Bandra West, Mumbai, Maharashtra",
             location_lat=19.0596,
@@ -29,7 +29,7 @@ def seed_database():
             preferred_language="English"
         )
         citizen_user = User(
-            email="citizen@rescueai.org",
+            email="citizen@safesphere.org",
             password_hash=get_password_hash("citizen123"),
             full_name="Rajesh Patel",
             role="citizen",

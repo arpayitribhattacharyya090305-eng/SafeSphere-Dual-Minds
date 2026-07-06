@@ -1,6 +1,6 @@
-# RescueAI 5-Minute Demo Script
+# SafeSphere 5-Minute Demo Script
 
-1. Open the RescueAI dashboard and show the live alert cards and quick actions.
+1. Open the SafeSphere dashboard and show the live alert cards and quick actions.
 2. Navigate to the chat experience and ask for a flood evacuation plan.
 3. Upload an image to demonstrate vision-based disaster assessment.
 4. Open the live maps page and show OpenStreetMap markers for shelters, hospitals, incidents, and the OSRM evacuation route.

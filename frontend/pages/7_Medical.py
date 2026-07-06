@@ -12,7 +12,7 @@ from frontend.local_fallbacks import local_medical_guidelines
 
 BACKEND_URL = "http://localhost:8000/api"
 
-st.set_page_config(page_title="RescueAI Medical Advisor", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Medical Advisor", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Medical First Aid Advisor (RAG)</h1>", unsafe_allow_html=True)

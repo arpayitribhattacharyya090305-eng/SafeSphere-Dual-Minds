@@ -1,6 +1,6 @@
-# RescueAI
+# SafeSphere
 
-RescueAI is a multi-agent disaster response platform built with FastAPI,
+SafeSphere is a multi-agent disaster response platform built with FastAPI,
 Streamlit, LangGraph, and Gemini. It combines weather intelligence, vision
 analysis, OpenStreetMap navigation, shelter lookup, first-aid guidance,
 resource discovery, and relief support into one emergency response workflow.
@@ -20,7 +20,7 @@ resource discovery, and relief support into one emergency response workflow.
 
 ## Mapping Architecture
 
-RescueAI uses only the OpenStreetMap ecosystem for maps, places, geocoding, and
+SafeSphere uses only the OpenStreetMap ecosystem for maps, places, geocoding, and
 directions. No map API key is required.
 
 | Capability | Service |

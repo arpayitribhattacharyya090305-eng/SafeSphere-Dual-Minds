@@ -12,7 +12,7 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import local_hospitals, local_shelters
 from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Shelters", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Shelters", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Nearby Emergency Shelters & Hospitals</h1>", unsafe_allow_html=True)

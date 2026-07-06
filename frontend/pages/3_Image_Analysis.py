@@ -12,7 +12,7 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import add_local_incident
 from frontend.profile_state import get_profile
 
-st.set_page_config(page_title="RescueAI Vision Assessment", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SafeSphere Vision Assessment", layout="wide", initial_sidebar_state="expanded")
 inject_custom_styles()
 
 st.markdown("<h1 class='gradient-header'>Vision Damage Assessment</h1>", unsafe_allow_html=True)

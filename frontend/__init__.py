@@ -1,1 +1,1 @@
-"""Frontend package for RescueAI."""
+"""Frontend package for SafeSphere."""

@@ -21,3 +21,16 @@ def get_profile() -> dict:
 
 def update_profile(profile: dict) -> None:
     st.session_state["emergency_profile"] = {**DEFAULT_PROFILE, **profile}
+
+
+def set_auth_token(token: str) -> None:
+    st.session_state["auth_token"] = token
+
+
+def get_auth_token() -> str | None:
+    return st.session_state.get("auth_token")
+
+
+def clear_auth_token() -> None:
+    if "auth_token" in st.session_state:
+        del st.session_state["auth_token"]

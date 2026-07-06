@@ -1,1 +1,1 @@
-"""Backend package for RescueAI."""
+"""Backend package for SafeSphere."""
