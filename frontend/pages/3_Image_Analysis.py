@@ -12,9 +12,12 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import add_local_incident
 from frontend.profile_state import get_profile, render_auth_sidebar
 
-st.set_page_config(page_title="SafeSphere Vision Assessment", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Vision Assessment", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 st.markdown("<h1 class='gradient-header'>Vision Damage Assessment</h1>", unsafe_allow_html=True)
 st.markdown("Upload a photo of the emergency scene. Gemini Vision AI will analyze structural safety, flood levels, road blockages, and recommend immediate actions.")
@@ -60,7 +63,7 @@ def _local_vision_assessment(file_name: str) -> dict:
 
 if uploaded_file is not None:
     # Display the uploaded image
-    st.image(uploaded_file, caption="Uploaded Emergency Image", width="stretch")
+    st.image(uploaded_file, caption="Uploaded Emergency Image", use_container_width=True)
     
     # Analyze button
     if st.button("Trigger Vision AI Assessment", width="stretch"):

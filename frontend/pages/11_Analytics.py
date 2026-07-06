@@ -14,9 +14,12 @@ from backend.app.models.database_models import Shelter, Incident, Volunteer, Wea
 from frontend.custom_style import inject_custom_styles
 from frontend.profile_state import render_auth_sidebar
 
-st.set_page_config(page_title="SafeSphere Analytics", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Analytics", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 CHART_LAYOUT = {
     "paper_bgcolor": "#ffffff",

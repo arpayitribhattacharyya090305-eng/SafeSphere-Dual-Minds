@@ -11,9 +11,12 @@ import requests
 from frontend.custom_style import inject_custom_styles
 from frontend.profile_state import get_profile, update_profile, get_auth_token, render_auth_sidebar
 
-st.set_page_config(page_title="SafeSphere Settings", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Settings", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 st.markdown("<h1 class='gradient-header'>Emergency Settings</h1>", unsafe_allow_html=True)
 st.markdown(

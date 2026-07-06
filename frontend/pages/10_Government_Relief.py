@@ -13,9 +13,12 @@ from frontend.profile_state import render_auth_sidebar
 
 BACKEND_URL = "http://localhost:8000/api"
 
-st.set_page_config(page_title="SafeSphere Relief Schemes", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Relief Schemes", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 st.markdown("<h1 class='gradient-header'>Government Relief & Compensation Schemes</h1>", unsafe_allow_html=True)
 st.markdown("Access NDMA relief, ex-gratia compensations, and housing subsidies with eligibility guidelines and required documents.")

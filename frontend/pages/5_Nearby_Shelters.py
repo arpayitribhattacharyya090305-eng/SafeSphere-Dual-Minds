@@ -12,9 +12,12 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import local_hospitals, local_shelters
 from frontend.profile_state import get_profile, render_auth_sidebar
 
-st.set_page_config(page_title="SafeSphere Shelters", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Shelters", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 st.markdown("<h1 class='gradient-header'>Nearby Emergency Shelters & Hospitals</h1>", unsafe_allow_html=True)
 st.markdown("Locate safe relief camps, community centers, and operational hospitals near your location.")

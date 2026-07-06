@@ -13,9 +13,12 @@ from frontend.profile_state import render_auth_sidebar
 
 BACKEND_URL = "http://localhost:8000/api"
 
-st.set_page_config(page_title="SafeSphere Medical Advisor", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Medical Advisor", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 st.markdown("<h1 class='gradient-header'>Medical First Aid Advisor (RAG)</h1>", unsafe_allow_html=True)
 st.markdown("Search critical medical and trauma guidelines sourced from WHO, Indian NDMA, and Red Cross safety manuals.")
@@ -28,7 +31,7 @@ search_query = st.text_input(
 
 # Quick tags
 st.markdown("**Quick Shortcuts:**")
-tag_cols = st.columns(6)
+tag_cols = st.columns([1.0, 1.1, 1.1, 1.2, 1.6, 1.0])
 tags = ["CPR Guidelines", "Snake Bite Care", "Burn First Aid", "Fracture Splints", "Ingestion Poisoning", "Panic Relief"]
 
 selected_tag = None

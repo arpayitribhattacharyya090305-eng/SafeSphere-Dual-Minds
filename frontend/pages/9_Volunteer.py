@@ -11,9 +11,12 @@ from frontend.custom_style import inject_custom_styles
 from frontend.local_fallbacks import add_local_volunteer, local_volunteers
 from frontend.profile_state import get_profile, render_auth_sidebar
 
-st.set_page_config(page_title="SafeSphere Volunteers", layout="wide", initial_sidebar_state="expanded")
+try:
+    st.set_page_config(page_title="SafeSphere Volunteers", layout="wide", initial_sidebar_state="expanded")
+except Exception:
+    pass
 inject_custom_styles()
-render_auth_sidebar()
+# render_auth_sidebar()  # Handled globally in app.py
 
 st.markdown("<h1 class='gradient-header'>Volunteer Matching & Dispatch</h1>", unsafe_allow_html=True)
 st.markdown("Register as an emergency volunteer, see active dispatch lists, and match civilian squads with immediate help requests.")

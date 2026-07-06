@@ -46,6 +46,14 @@ def rerun() -> None:
 
 def render_auth_sidebar() -> None:
     """Renders user authentication controls and status in the sidebar."""
+    import os
+    try:
+        logo_path = os.path.join(os.path.dirname(__file__), "logo.svg")
+        if os.path.exists(logo_path):
+            st.logo(logo_path)
+    except Exception:
+        pass
+
     BACKEND_URL = "http://localhost:8000/api"
     
     auth_token = get_auth_token()
